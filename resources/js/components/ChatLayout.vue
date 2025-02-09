@@ -10,6 +10,7 @@
   import ChatHeader from './ChatHeader.vue';
   import ChatArea from './ChatArea.vue';
   import ChatInput from './ChatInput.vue';
+  import axios from 'axios';
   
   export default {
     name: 'ChatLayout',
@@ -23,21 +24,28 @@
         messages: [], // チャットメッセージを管理
       };
     },
+    mounted() {
+        // 初期メッセージ
+        this.messages.push({ text: 'こんにちは。何かお手伝いできることはありますか？', sender: 'bot' });
+    },
     methods: {
-      handleSendMessage(message) {
+      async handleSendMessage(message) {
         // ユーザーからのメッセージを追加
         this.messages.push({ text: message, sender: 'user' });
   
-        // ボットの応答を追加（ここでAPI呼び出し）
-        if (message == 'こんにちは') {
-            this.messages.push({ text: 'こんにちは。何が知りたいですか？', sender: 'bot' });
-        } else {
-            this.messages.push({ text: 'すみません。理解できませんでした。', sender: 'bot' });
+        try {
+          // Laravel API にメッセージを送信
+          const response = await axios.post('/api/chat', { message });
+  
+          // Amazon Lex の応答を追加
+          this.messages.push({ text: response.data.reply, sender: 'bot' });
+        } catch (error) {
+          this.messages.push({ text: 'エラーが発生しました。', sender: 'bot' });
         }
       },
     },
   };
-  </script>
+  </script>  
   
   <style>
   .chat-layout {

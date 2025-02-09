@@ -4,9 +4,8 @@
         v-model="message"
         type="text"
         placeholder="文字を入力..."
-        @keyup.enter="sendMessage"
       />
-      <button @click="sendMessage">Send</button>
+      <button @click="sendMessage">送信</button>
     </div>
   </template>
   

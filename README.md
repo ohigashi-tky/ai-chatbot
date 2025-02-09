@@ -1,6 +1,13 @@
 ## AIチャットボット
 AIを使ったシンプルなチャットボット
-  
+
+## 技術スタック
+Laravel
+PHP
+Vue
+Amazon Lex
+OpenAI API
+
 ### 環境構築
 SailでDockerコンテナ起動
 ```
