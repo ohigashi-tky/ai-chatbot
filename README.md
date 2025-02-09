@@ -8,7 +8,7 @@ Vue
 Amazon Lex  
 OpenAI API  
 
-### 環境構築
+## 環境構築
 SailでDockerコンテナ起動
 ```
 ./vendor/bin/sail up
