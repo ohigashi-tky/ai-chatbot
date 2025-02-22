@@ -27,14 +27,20 @@ const handleSendMessage = async (message) => {
   await nextTick();
 
   try {
-    // const response = await axios.post("/api/chat", { message });
-    await sleep(3000);
+    // AI未使用のテスト用
+    let isTest = true;
 
-    const response = '回答'
+    if (isTest) {
+      await sleep(3000);
+      const response = '回答'
+      await nextTick();
+      botMessage.text = response;
+    } else {
+      const response = await axios.post("/api/chat", { message });
+      await nextTick();
+      botMessage.text = response.data.reply;
+    }
 
-    await nextTick();
-    // botMessage.text = response.data.reply;
-    botMessage.text = response;
     botMessage.isLoading = false;
 
     messages.value = [...messages.value];
