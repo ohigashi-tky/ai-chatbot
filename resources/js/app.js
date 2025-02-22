@@ -3,6 +3,7 @@ import App from "./App.vue";
 import { createVuetify } from "vuetify";
 import "vuetify/styles";
 import "@mdi/font/css/materialdesignicons.css";
+import "../css/app.css";
 
 const vuetify = createVuetify({
   icons: {

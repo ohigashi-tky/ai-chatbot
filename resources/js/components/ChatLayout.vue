@@ -21,17 +21,20 @@ const messages = ref([
 const handleSendMessage = async (message) => {
   messages.value.push({ text: message, sender: "user" });
 
-  // 回答待ちのローディングを追加
   const botMessage = { text: "", sender: "bot", isLoading: true };
   messages.value.push(botMessage);
 
   await nextTick();
 
   try {
-    const response = await axios.post("/api/chat", { message });
+    // const response = await axios.post("/api/chat", { message });
+    await sleep(3000);
+
+    const response = '回答'
 
     await nextTick();
-    botMessage.text = response.data.reply;
+    // botMessage.text = response.data.reply;
+    botMessage.text = response;
     botMessage.isLoading = false;
 
     messages.value = [...messages.value];
@@ -43,6 +46,8 @@ const handleSendMessage = async (message) => {
     messages.value = [...messages.value];
   }
 };
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 </script>
 

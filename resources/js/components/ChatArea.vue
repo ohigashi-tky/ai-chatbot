@@ -1,17 +1,17 @@
 <template>
   <div ref="chatContainer" class="chat-area">
-    <div
+    <div class="m-2 p-2 rounded-md"
       v-for="(message, index) in messages"
       :key="index"
       :class="['message', message.sender]"
     >
-      <div class="message-content">
+      <div class="flex items-center">
         <VProgressCircular
           v-if="message.isLoading"
           indeterminate
           color="blue-lighten-3"
-          :size="30"
-          :width="6"
+          :size="40"
+          :width="8"
           class="loading-spinner"
         ></VProgressCircular>
         <span v-else v-html="message.text"></span>
@@ -50,21 +50,12 @@ watch(() => props.messages.length, async () => {
   height: calc(100vh - 150px);
 }
 
-.message {
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.message-content {
-  display: flex;
-  align-items: center;
-  min-height: 40px;
-}
-
 .message.user {
   background-color: #d1e7dd;
+  width: auto;
+  max-width: 70%;
   align-self: flex-end;
+  margin-left: auto;
 }
 
 .message.bot {
