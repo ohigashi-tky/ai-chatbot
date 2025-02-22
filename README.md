@@ -5,8 +5,7 @@ AIを使ったシンプルなチャットボット
 Laravel  
 PHP  
 Vue  
-Amazon Lex  
-OpenAI API  
+Sonar Pro (Perplexity)
 
 ## 環境構築
 SailでDockerコンテナ起動
