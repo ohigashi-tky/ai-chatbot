@@ -13,41 +13,37 @@ import ChatHeader from "./ChatHeader.vue";
 import ChatArea from "./ChatArea.vue";
 import ChatInput from "./ChatInput.vue";
 
-// 初期メッセージのリスト
+// メッセージのリスト
 const messages = ref([
   { text: "こんにちは。何かお手伝いできることはありますか？", sender: "bot" },
 ]);
 
 const handleSendMessage = async (message) => {
-  // ユーザーのメッセージ追加
   messages.value.push({ text: message, sender: "user" });
 
-  messages.value.push({ text: "回答を生成中です...", sender: "bot", isLoading: true });
+  // 回答待ちのローディングを追加
+  const botMessage = { text: "", sender: "bot", isLoading: true };
+  messages.value.push(botMessage);
 
-  // 回答のメッセージ欄を保持（回答で上書きするため）
-  const botMessageIndex = messages.value.length - 1;
+  await nextTick();
 
   try {
     const response = await axios.post("/api/chat", { message });
 
-    // 変更を検知できるように
     await nextTick();
+    botMessage.text = response.data.reply;
+    botMessage.isLoading = false;
 
-    messages.value[botMessageIndex] = {
-      text: response.data.reply,
-      sender: "bot",
-      isLoading: false,
-    };
+    messages.value = [...messages.value];
   } catch (error) {
-    // エラー発生時
     await nextTick();
-    messages.value[botMessageIndex] = {
-      text: "エラーが発生しました。",
-      sender: "bot",
-      isLoading: false,
-    };
+    botMessage.text = "エラーが発生しました。";
+    botMessage.isLoading = false;
+
+    messages.value = [...messages.value];
   }
 };
+
 </script>
 
 <style scoped>
