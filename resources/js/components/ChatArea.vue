@@ -1,6 +1,6 @@
 <template>
   <div ref="chatContainer" class="chat-area">
-    <div class="m-2 p-2 rounded-md"
+    <div class="text-sm m-2 p-2 bg-gray-200 rounded-md"
       v-for="(message, index) in messages"
       :key="index"
       :class="['message', message.sender]"
@@ -10,8 +10,8 @@
           v-if="message.isLoading"
           indeterminate
           color="blue-lighten-3"
-          :size="40"
-          :width="8"
+          :size="24"
+          :width="4"
           class="loading-spinner"
         ></VProgressCircular>
         <span v-else v-html="message.text"></span>
@@ -48,19 +48,6 @@ watch(() => props.messages.length, async () => {
   padding: 10px;
   background-color: #f9f9f9;
   height: calc(100vh - 150px);
-}
-
-.message.user {
-  background-color: #d1e7dd;
-  width: auto;
-  max-width: 70%;
-  align-self: flex-end;
-  margin-left: auto;
-}
-
-.message.bot {
-  background-color: #f8d7da;
-  align-self: flex-start;
 }
 
 .loading-spinner {

@@ -20,10 +20,15 @@ class ChatBotController extends Controller
         return response()->json(['reply' => $formattedResponse]);
     }
 
-    private function sendToPerplexity($message)
+    private function sendToPerplexity($userMessage)
     {
         $apiUrl = "https://api.perplexity.ai/chat/completions";
         $apiKey = env('PERPLEXITY_API_KEY');
+
+        $systemMessage =
+        "システム開発のプロとして、CTOのような役割で500文字以内で的確に技術相談などに対して回答してください。\n".
+        "- 適度な改行を含めて、読みやすさを重視する。\n"
+        ;
 
         $response = Http::withHeaders([
             'Authorization' => "Bearer $apiKey",
@@ -31,15 +36,10 @@ class ChatBotController extends Controller
         ])->post($apiUrl, [
             'model' => 'sonar-pro',
             'messages' => [
-                ['role' => 'system', 'content' => 
-                    '回答のルールは以下です。
-                    - 日本語で300文字以内で改行を入れて読みやすくする。
-                    - 日本語で最新のweb検索を行い、リアルタイムの情報を基に回答する。
-                    - 参照を示す[1]などの数値は不要。'
-                ],
-                ['role' => 'user', 'content' => $message],
+                ['role' => 'system', 'content' => $systemMessage],
+                ['role' => 'user', 'content' => $userMessage],
             ],
-            'max_tokens' => 500,
+            'max_tokens' => 1000,
             'temperature' => 0.7,
         ]);
 

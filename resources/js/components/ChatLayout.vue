@@ -15,7 +15,7 @@ import ChatInput from "./ChatInput.vue";
 
 // メッセージのリスト
 const messages = ref([
-  { text: "こんにちは。何かお手伝いできることはありますか？", sender: "bot" },
+  { text: "こんにちは。システム開発や技術についての相談はありますか？", sender: "bot" },
 ]);
 
 const handleSendMessage = async (message) => {
@@ -28,7 +28,7 @@ const handleSendMessage = async (message) => {
 
   try {
     // AI未使用のテスト用
-    let isTest = true;
+    let isTest = false;
 
     if (isTest) {
       await sleep(3000);
