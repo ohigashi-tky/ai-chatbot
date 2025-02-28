@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 bg-gradient-to-r from-gray-600 to-gray-400 border-t border-gray-500">
+  <div class="p-4 bg-gray-500 border-t border-gray-500">
     <div class="max-w-3xl mx-auto flex items-center">
       <input
         v-model="message"

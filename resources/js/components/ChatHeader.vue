@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-gradient-to-r from-gray-400 to-gray-600 p-3 flex items-center shadow-md">
+  <header class="bg-gradient-to-r from-gray-500 to-gray-600 p-3 flex items-center shadow-md">
     <div class="bg-white rounded-full w-10 h-10 flex items-center justify-center mr-3">
       <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
         <path d="M13 7H7v6h6V7z" />
