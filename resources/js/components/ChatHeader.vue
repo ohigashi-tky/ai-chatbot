@@ -1,10 +1,6 @@
 <template>
   <header class="bg-gradient-to-r from-gray-500 to-gray-600 p-3 flex items-center shadow-md">
     <div class="bg-white rounded-full w-10 h-10 flex items-center justify-center mr-3">
-      <!-- <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-        <path d="M13 7H7v6h6V7z" />
-        <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd" />
-      </svg> -->
       <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="4" y="7" width="16" height="12" rx="4" stroke="#4F46E5" stroke-width="2"/>
         <circle cx="8.5" cy="13" r="1.5" fill="#4F46E5"/>

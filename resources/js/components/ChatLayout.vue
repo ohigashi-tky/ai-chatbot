@@ -32,9 +32,9 @@ const handleSendMessage = async (message) => {
   });
 
   const botMessage = { 
-    text: "", 
-    sender: "bot", 
-    isLoading: true 
+    text: "",
+    sender: "bot",
+    isLoading: true
   };
   
   messages.value.push(botMessage);
@@ -44,9 +44,18 @@ const handleSendMessage = async (message) => {
     console.log("APIリクエスト送信中...");
     const response = await axios.post("/api/chat", { message });
     console.log("APIレスポンス:", response.data);
+    console.log("APIチャートデータ:", response.data.chartData);
     
     botMessage.isLoading = false;
     botMessage.text = response.data.reply;
+    
+    // グラフデータがあれば追加
+    if (response.data.chartData) {
+      botMessage.hasChart = true;
+      botMessage.chartData = response.data.chartData;
+      botMessage.chartType = response.data.chartType || 'bar';
+      botMessage.chartOptions = response.data.chartOptions || {};
+    }
     
     messages.value = [...messages.value];
     isLoading.value = false;

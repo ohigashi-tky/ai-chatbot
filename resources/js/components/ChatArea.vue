@@ -11,7 +11,7 @@
       >
         <div
           :class="[
-            'max-w-[80%] rounded-2xl p-3 shadow-sm',
+            'max-w-[100%] rounded-2xl p-3 shadow-sm',
             message.sender === 'user' 
               ? 'text-sm bg-gray-500 text-gray-100 rounded-tr-none' 
               : 'text-sm bg-gray-600 text-gray-100 rounded-tl-none'
@@ -23,7 +23,24 @@
               <div class="w-2 h-2 bg-gray-900 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
               <div class="w-2 h-2 bg-gray-900 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
             </div>
-            <span v-else v-html="message.text" class="leading-relaxed break-words"></span>
+            <div v-else>
+              <!-- 通常のテキストメッセージ -->
+              <span v-if="!message.hasChart" v-html="message.text" class="leading-relaxed break-words"></span>
+              
+              <!-- グラフを含むメッセージ -->
+              <div v-else>
+                <div class="bg-white p-2 rounded-lg mb-3 w-full">
+                  <chart-component 
+                    v-if="message.chartData" 
+                    :chart-data="message.chartData" 
+                    :chart-type="message.chartType || 'bar'"
+                    :chart-options="message.chartOptions || {}"
+                    class="w-full h-80"
+                  />
+                </div>
+                <span v-html="message.text" class="leading-relaxed break-words mt-2 block"></span>
+              </div>
+            </div>
           </div>
           <div 
             :class="[
@@ -41,6 +58,7 @@
 
 <script setup>
 import { ref, watch, nextTick } from 'vue'
+import ChartComponent from './ChartComponent.vue'
 
 const props = defineProps({
   messages: {
