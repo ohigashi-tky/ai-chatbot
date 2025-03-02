@@ -85,8 +85,12 @@ class ChatBotController extends Controller
                 $chartInfo = json_decode($chartDataJson, true);
                 
                 if ($chartInfo && json_last_error() === JSON_ERROR_NONE) {
-                    // 回答からグラフデータ部分を削除
-                    $content = trim(str_replace('CHART_DATA:' . $chartDataJson, '', $content));
+                    // コードブロック全体を検出して削除
+                    $content = preg_replace('/``````/s', '', $content);
+                    // または、CHART_DATA以降の部分を削除
+                    $content = preg_replace('/CHART_DATA:[\s\S]*$/s', '', $content);
+                    // 残りの部分をトリム
+                    $content = trim($content);
                     
                     // グラフの種類を取得
                     $chartType = isset($chartInfo['type']) ? $chartInfo['type'] : 'bar';
@@ -147,83 +151,5 @@ class ChatBotController extends Controller
 
         // グラフデータがない場合は通常のテキスト回答のみを返す
         return $content;
-    }  
-
-    // private function sendToPerplexity($userMessage)
-    // {
-    //     $apiUrl = "https://api.perplexity.ai/chat/completions";
-    //     $apiKey = env('PERPLEXITY_API_KEY');
-    
-    //     $systemMessage =
-    //     "システム開発のプロとして、CTOのような役割で300文字以内で的確に技術相談などに対して回答してください。\n".
-    //     "- 適度な改行を含めて、読みやすさを重視する。\n".
-    //     "- 引用を表す[1]などの数値は回答に含まない。\n"
-    //     ;
-    
-    //     $response = Http::withHeaders([
-    //         'Authorization' => "Bearer $apiKey",
-    //         'Content-Type' => 'application/json',
-    //     ])->post($apiUrl, [
-    //         'model' => 'sonar-pro',
-    //         'messages' => [
-    //             ['role' => 'system', 'content' => $systemMessage],
-    //             ['role' => 'user', 'content' => $userMessage],
-    //         ],
-    //         'max_tokens' => 1000,
-    //         'temperature' => 0.7,
-    //     ]);
-    
-    //     // 検証用：グラフを表示するキーワードが含まれているか確認
-    //     $content = $response->json()['choices'][0]['message']['content'] ?? "エラーが発生しました";
-        
-    //     // グラフ関連のキーワードが含まれている場合、グラフデータを追加
-    //     if (str_contains(strtolower($userMessage), 'グラフ') || 
-    //         str_contains(strtolower($userMessage), 'データ') || 
-    //         str_contains(strtolower($userMessage), '分析') || 
-    //         str_contains(strtolower($userMessage), '統計')) {
-            
-    //         // サンプルのグラフデータを生成
-    //         $chartData = [
-    //             'labels' => ['1月', '2月', '3月', '4月', '5月', '6月'],
-    //             'datasets' => [
-    //                 [
-    //                     'label' => 'プロジェクト進捗率',
-    //                     'data' => [12, 19, 35, 42, 56, 68],
-    //                     'backgroundColor' => 'rgba(54, 162, 235, 0.9)',
-    //                     'borderColor' => 'rgba(54, 162, 235, 0.9)',
-    //                     'borderWidth' => 1
-    //                 ],
-    //                 [
-    //                     'label' => 'バグ発生数',
-    //                     'data' => [28, 22, 16, 12, 8, 5],
-    //                     'backgroundColor' => 'rgba(255, 99, 132, 0.9)',
-    //                     'borderColor' => 'rgba(255, 99, 132, )',
-    //                     'borderWidth' => 1
-    //                 ]
-    //             ]
-    //         ];
-
-    //         // レスポンスに追加情報を含める
-    //         return [
-    //             'content' => $content,
-    //             'chartData' => $chartData,
-    //             'chartType' => 'bar',
-    //             'chartOptions' => [
-    //                 'plugins' => [
-    //                     'title' => [
-    //                         'display' => true,
-    //                         'text' => 'プロジェクト進捗とバグ推移'
-    //                     ]
-    //                 ],
-    //                 'scales' => [
-    //                     'y' => [
-    //                         'beginAtZero' => true
-    //                     ]
-    //                 ]
-    //             ]
-    //         ];
-    //     }
-
-    //     return $content;
-    // }    
+    }
 }
