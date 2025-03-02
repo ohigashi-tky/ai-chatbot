@@ -37,12 +37,30 @@ class ChatBotController extends Controller
         $apiUrl = "https://api.perplexity.ai/chat/completions";
         $apiKey = env('PERPLEXITY_API_KEY');
     
-        $systemMessage =
-        "システム開発のプロとして、CTOのような役割で300文字以内で的確に技術相談などに対して回答してください。\n".
-        "- 適度な改行を含めて、読みやすさを重視する。\n".
-        "- 引用を表す[1]などの数値は回答に含まない。\n"
-        ;
-    
+        $systemMessage = <<<EOT
+            システム開発のプロとして、CTOのような役割で300文字以内で的確に技術相談などに対して回答してください。
+            - 適度な改行を含めて、読みやすさを重視する。
+            - 引用を表す[1]などの数値は回答に含まない。
+            - 回答内容がデータの比較や時系列の変化、割合などを含む場合は、それを視覚的に表現できるグラフデータも提供してください。
+            - グラフデータを提供する場合は、以下のJSON形式で回答の最後に追加してください:
+            CHART_DATA:
+            {
+                "type": "bar|line|doughnut",
+                "title": "グラフのタイトル",
+                "labels": ["ラベル1", "ラベル2", ...],
+                "datasets": [
+                    {
+                        "label": "データセット1の名前",
+                        "data": [値1, 値2, ...]
+                    },
+                    {
+                        "label": "データセット2の名前",
+                        "data": [値1, 値2, ...]
+                    }
+                ]
+            }
+        EOT;
+
         $response = Http::withHeaders([
             'Authorization' => "Bearer $apiKey",
             'Content-Type' => 'application/json',
@@ -55,58 +73,157 @@ class ChatBotController extends Controller
             'max_tokens' => 1000,
             'temperature' => 0.7,
         ]);
-    
-        // 検証用：グラフを表示するキーワードが含まれているか確認
+
+        // AIからの回答を取得
         $content = $response->json()['choices'][0]['message']['content'] ?? "エラーが発生しました";
         
-        // グラフ関連のキーワードが含まれている場合、グラフデータを追加
-        if (str_contains(strtolower($userMessage), 'グラフ') || 
-            str_contains(strtolower($userMessage), 'データ') || 
-            str_contains(strtolower($userMessage), '分析') || 
-            str_contains(strtolower($userMessage), '統計')) {
-            
-            // サンプルのグラフデータを生成
-            $chartData = [
-                'labels' => ['1月', '2月', '3月', '4月', '5月', '6月'],
-                'datasets' => [
-                    [
-                        'label' => 'プロジェクト進捗率',
-                        'data' => [12, 19, 35, 42, 56, 68],
-                        'backgroundColor' => 'rgba(54, 162, 235, 0.9)',
-                        'borderColor' => 'rgba(54, 162, 235, 1)',
-                        'borderWidth' => 1
-                    ],
-                    [
-                        'label' => 'バグ発生数',
-                        'data' => [28, 22, 16, 12, 8, 5],
-                        'backgroundColor' => 'rgba(255, 99, 132, 0.9)',
-                        'borderColor' => 'rgba(255, 99, 132, 1)',
-                        'borderWidth' => 1
-                    ]
-                ]
-            ];
-
-            // レスポンスに追加情報を含める
-            return [
-                'content' => $content,
-                'chartData' => $chartData,
-                'chartType' => 'bar',
-                'chartOptions' => [
-                    'plugins' => [
-                        'title' => [
-                            'display' => true,
-                            'text' => 'プロジェクト進捗とバグ推移'
+        // CHART_DATA:がある場合、グラフデータを抽出
+        if (preg_match('/CHART_DATA:\s*({.*})/s', $content, $matches)) {
+            try {
+                // グラフデータのJSONを抽出
+                $chartDataJson = $matches[1];
+                $chartInfo = json_decode($chartDataJson, true);
+                
+                if ($chartInfo && json_last_error() === JSON_ERROR_NONE) {
+                    // 回答からグラフデータ部分を削除
+                    $content = trim(str_replace('CHART_DATA:' . $chartDataJson, '', $content));
+                    
+                    // グラフの種類を取得
+                    $chartType = isset($chartInfo['type']) ? $chartInfo['type'] : 'bar';
+                    
+                    // データセットの色を設定
+                    $colors = [
+                        ['rgba(54, 162, 235, 0.9)', 'rgba(54, 162, 235, 1)'],
+                        ['rgba(255, 99, 132, 0.9)', 'rgba(255, 99, 132, 1)'],
+                        ['rgba(75, 192, 192, 0.9)', 'rgba(75, 192, 192, 1)'],
+                        ['rgba(255, 206, 86, 0.9)', 'rgba(255, 206, 86, 1)'],
+                        ['rgba(153, 102, 255, 0.9)', 'rgba(153, 102, 255, 1)'],
+                        ['rgba(255, 159, 64, 0.9)', 'rgba(255, 159, 64, 1)']
+                    ];
+                    
+                    // データセットに色を追加
+                    $datasets = [];
+                    foreach ($chartInfo['datasets'] as $index => $dataset) {
+                        $colorIndex = $index % count($colors);
+                        $datasets[] = [
+                            'label' => $dataset['label'],
+                            'data' => $dataset['data'],
+                            'backgroundColor' => $colors[$colorIndex][0],
+                            'borderColor' => $colors[$colorIndex][1],
+                            'borderWidth' => 1
+                        ];
+                    }
+                    
+                    // チャートデータを構築
+                    $chartData = [
+                        'labels' => $chartInfo['labels'],
+                        'datasets' => $datasets
+                    ];
+                    
+                    // レスポンスに追加情報を含める
+                    return [
+                        'content' => $content,
+                        'chartData' => $chartData,
+                        'chartType' => $chartType,
+                        'chartOptions' => [
+                            'plugins' => [
+                                'title' => [
+                                    'display' => true,
+                                    'text' => $chartInfo['title'] ?? 'データ分析'
+                                ]
+                            ],
+                            'scales' => [
+                                'y' => [
+                                    'beginAtZero' => true
+                                ]
+                            ]
                         ]
-                    ],
-                    'scales' => [
-                        'y' => [
-                            'beginAtZero' => true
-                        ]
-                    ]
-                ]
-            ];
+                    ];
+                }
+            } catch (\Exception $e) {
+                // JSONパースエラーなどの例外処理
+            }
         }
 
+        // グラフデータがない場合は通常のテキスト回答のみを返す
         return $content;
-    }    
+    }  
+
+    // private function sendToPerplexity($userMessage)
+    // {
+    //     $apiUrl = "https://api.perplexity.ai/chat/completions";
+    //     $apiKey = env('PERPLEXITY_API_KEY');
+    
+    //     $systemMessage =
+    //     "システム開発のプロとして、CTOのような役割で300文字以内で的確に技術相談などに対して回答してください。\n".
+    //     "- 適度な改行を含めて、読みやすさを重視する。\n".
+    //     "- 引用を表す[1]などの数値は回答に含まない。\n"
+    //     ;
+    
+    //     $response = Http::withHeaders([
+    //         'Authorization' => "Bearer $apiKey",
+    //         'Content-Type' => 'application/json',
+    //     ])->post($apiUrl, [
+    //         'model' => 'sonar-pro',
+    //         'messages' => [
+    //             ['role' => 'system', 'content' => $systemMessage],
+    //             ['role' => 'user', 'content' => $userMessage],
+    //         ],
+    //         'max_tokens' => 1000,
+    //         'temperature' => 0.7,
+    //     ]);
+    
+    //     // 検証用：グラフを表示するキーワードが含まれているか確認
+    //     $content = $response->json()['choices'][0]['message']['content'] ?? "エラーが発生しました";
+        
+    //     // グラフ関連のキーワードが含まれている場合、グラフデータを追加
+    //     if (str_contains(strtolower($userMessage), 'グラフ') || 
+    //         str_contains(strtolower($userMessage), 'データ') || 
+    //         str_contains(strtolower($userMessage), '分析') || 
+    //         str_contains(strtolower($userMessage), '統計')) {
+            
+    //         // サンプルのグラフデータを生成
+    //         $chartData = [
+    //             'labels' => ['1月', '2月', '3月', '4月', '5月', '6月'],
+    //             'datasets' => [
+    //                 [
+    //                     'label' => 'プロジェクト進捗率',
+    //                     'data' => [12, 19, 35, 42, 56, 68],
+    //                     'backgroundColor' => 'rgba(54, 162, 235, 0.9)',
+    //                     'borderColor' => 'rgba(54, 162, 235, 0.9)',
+    //                     'borderWidth' => 1
+    //                 ],
+    //                 [
+    //                     'label' => 'バグ発生数',
+    //                     'data' => [28, 22, 16, 12, 8, 5],
+    //                     'backgroundColor' => 'rgba(255, 99, 132, 0.9)',
+    //                     'borderColor' => 'rgba(255, 99, 132, )',
+    //                     'borderWidth' => 1
+    //                 ]
+    //             ]
+    //         ];
+
+    //         // レスポンスに追加情報を含める
+    //         return [
+    //             'content' => $content,
+    //             'chartData' => $chartData,
+    //             'chartType' => 'bar',
+    //             'chartOptions' => [
+    //                 'plugins' => [
+    //                     'title' => [
+    //                         'display' => true,
+    //                         'text' => 'プロジェクト進捗とバグ推移'
+    //                     ]
+    //                 ],
+    //                 'scales' => [
+    //                     'y' => [
+    //                         'beginAtZero' => true
+    //                     ]
+    //                 ]
+    //             ]
+    //         ];
+    //     }
+
+    //     return $content;
+    // }    
 }
