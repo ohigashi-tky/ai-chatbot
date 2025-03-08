@@ -6,11 +6,12 @@ AIを利用したシステム開発・技術相談のできるチャットボッ
 Laravel  
 PHP  
 Vue  
-Sonar Pro (Perplexity)
 
-## 実装方法
-Perplexity(AIモデルはClaude3.7 sonnet)でコード生成  
-APIでのAI分析では、過去の会話を覚えていないので会話履歴を含める
+## AIモデル
+google/gemini-2.0-flash-001  
+
+## 課題 
+API利用だと、過去の会話を覚えていないので会話履歴を含める
 
 ## 環境構築
 SailでDockerコンテナ起動

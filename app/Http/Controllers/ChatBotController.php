@@ -43,6 +43,7 @@ class ChatBotController extends Controller
             - 適度な改行を含めて、読みやすさを重視する。
             - 引用を表す[1]などの数値は回答に含まない。
             - 回答内容がデータの比較や時系列の変化、割合などを含む場合は、それを視覚的に表現できるグラフデータも提供してください。
+            - 以下にグラフデータを提供します。などの文章は含めないでください。
             - グラフデータを提供する場合は、以下のJSON形式(```jsonというマークダウン記述を絶対に含まない)で回答の最後に追加してください:
             CHART_DATA:
             {
@@ -74,7 +75,7 @@ class ChatBotController extends Controller
                     ['role' => 'user', 'content' => $userMessage],
                 ],
                 'max_tokens' => 1000,
-                'temperature' => 0.7,
+                'temperature' => 1.0,
             ]);
         } catch (\Exception $e) {
             \Log::error("APIエラー: " . $response['error']['message']);
