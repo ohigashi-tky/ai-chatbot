@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen w-full flex flex-col bg-gray-100 dark:bg-gray-900">
+  <div :class="{ 'dark': isDark }" class="h-screen w-full flex flex-col bg-gray-100 dark:bg-gray-900">
     <div class="flex flex-col h-full w-full max-w-4xl mx-auto">
       <ChatHeader />
       <ChatArea :messages="messages" class="flex-1 overflow-y-auto" />
@@ -9,15 +9,37 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from "vue";
+import { ref, watch, onMounted, provide } from "vue";
 import axios from "axios";
 import ChatHeader from "./ChatHeader.vue";
 import ChatArea from "./ChatArea.vue";
 import ChatInput from "./ChatInput.vue";
 
 const isLoading = ref(false);
+const isDark = ref(localStorage.getItem('darkMode') === 'true');
 
-// メッセージのリスト
+const toggleDarkMode = () => {
+  isDark.value = !isDark.value;
+  localStorage.setItem('darkMode', isDark.value);
+};
+
+provide('isDark', isDark);
+provide('toggleDarkMode', toggleDarkMode);
+
+watch(isDark, (newValue) => {
+  if (newValue) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+});
+
+onMounted(() => {
+  if (isDark.value) {
+    document.documentElement.classList.add('dark');
+  }
+});
+
 const messages = ref([
   { 
     text: "こんにちは。システム開発や技術についての相談はありますか？", 
@@ -67,4 +89,6 @@ const handleSendMessage = async (message) => {
     isLoading.value = false;
   }
 };
+
+
 </script>

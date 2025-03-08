@@ -1,11 +1,17 @@
 <template>
-  <div class="p-4 bg-gray-500 border-t border-gray-500">
+    <div :class="[
+          'p-4 duration-300',
+          isDark ? 'bg-gray-800' : 'bg-gray-200'
+        ]">
     <div class="max-w-3xl mx-auto flex items-center">
       <input
         v-model="message"
         type="text"
         placeholder="文字を入力..."
-        class="flex-1 rounded-full py-2 px-4 bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 text-black"
+        :class="[
+          'flex-1 rounded-full py-2 px-4 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 text-black',
+          isDark ? 'bg-gray-500 placeholder-gray-100' : 'bg-white placeholder-gray-600'
+        ]"
         :disabled="isLoading"
         @keyup.enter="sendMessage"
       />
@@ -27,7 +33,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, inject} from 'vue';
+
+const isDark = inject('isDark', ref(false));
 
 const props = defineProps({
   isLoading: {
